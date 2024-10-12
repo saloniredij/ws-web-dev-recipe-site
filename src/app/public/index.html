@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Recipe App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Simple Recipe App</h1>
+    <form id="recipeForm">
+        <input type="text" id="title" placeholder="Recipe Title" required>
+        <input type="text" id="ingredients" placeholder="Ingredients" required>
+        <button type="submit">Add Recipe</button>
+    </form>
+    <h2>Recipes</h2>
+    <ul id="recipeList"></ul>
+
+    <script>
+        const form = document.getElementById('recipeForm');
+        const recipeList = document.getElementById('recipeList');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('title').value;
+            const ingredients = document.getElementById('ingredients').value;
+
+            const response = await fetch('/recipes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, ingredients })
+            });
+            const newRecipe = await response.json();
+            addRecipeToList(newRecipe);
+            form.reset();
+        });
+
+        async function loadRecipes() {
+            const response = await fetch('/recipes');
+            const recipes = await response.json();
+            recipes.forEach(addRecipeToList);
+        }
+
+        function addRecipeToList(recipe) {
+            const li = document.createElement('li');
+            li.textContent = `${recipe.title}: ${recipe.ingredients}`;
+            recipeList.appendChild(li);
+        }
+
+        loadRecipes();
+    </script>
+</body>
+</html>
